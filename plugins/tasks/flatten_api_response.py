@@ -27,12 +27,12 @@ def _flatten_product(product: Dict[str, Any]) -> Optional[List[Any]]:
     # Critical fields: skip the entire record if missing
     # -------------------------------------------------------
     required = {
-        'sku':            sku,
+        'sku': sku,
         'stock_quantity': stock.get('quantity'),
-        'stock_status':   stock.get('status'),
-        'msrp':           price.get('msrp'),
-        'sale_price':     price.get('sale'),
-        'supplier_name':  supplier.get('name'),
+        'stock_status': stock.get('status'),
+        'msrp': price.get('msrp'),
+        'sale_price': price.get('sale'),
+        'supplier_name': supplier.get('name'),
     }
 
     missing_critical = [k for k, v in required.items() if v is None]
@@ -58,7 +58,8 @@ def _flatten_product(product: Dict[str, Any]) -> Optional[List[Any]]:
 
     warehouse_region = warehouse.get('region')
     if warehouse_region is None:
-        logger.warning(f"SKU={sku} missing warehouse_region, defaulting to UNKNOWN")
+        logger.warning(
+            f"SKU={sku} missing warehouse_region, defaulting to UNKNOWN")
         warehouse_region = 'UNKNOWN'
 
     category = product.get('category')
@@ -84,8 +85,8 @@ def _flatten_product(product: Dict[str, Any]) -> Optional[List[Any]]:
     # -------------------------------------------------------
     # Nice to have: silent defaults, no warning needed
     # -------------------------------------------------------
-    discount  = price.get('discount') or 0
-    currency  = price.get('currency') or 'USD'
+    discount = price.get('discount') or 0
+    currency = price.get('currency') or 'USD'
     free_shipping = shipping.get('freeShipping') or False
 
     # Normalize tags from list to comma-separated string
@@ -163,7 +164,8 @@ def flatten_api_data(data_lst: List[Dict[str, Any]]) -> pd.DataFrame:
 
             # Guard: must be a non-empty dict
             if not product or not isinstance(product, dict):
-                logger.warning(f"Invalid product record type: {type(product)}, skipping.")
+                logger.warning(
+                    f"Invalid product record type: {type(product)}, skipping.")
                 skipped_count += 1
                 continue
 
@@ -183,10 +185,12 @@ def flatten_api_data(data_lst: List[Dict[str, Any]]) -> pd.DataFrame:
                 skipped_count += 1
                 continue
 
-    logger.info(f"Flattening complete — success: {len(product_lst)}, skipped: {skipped_count}")
+    logger.info(
+        f"Flattening complete — success: {len(product_lst)}, skipped: {skipped_count}")
 
     if not product_lst:
-        logger.warning("No products were flattened — returning empty DataFrame.")
+        logger.warning(
+            "No products were flattened — returning empty DataFrame.")
         return pd.DataFrame(columns=columns)
 
     return pd.DataFrame(product_lst, columns=columns)

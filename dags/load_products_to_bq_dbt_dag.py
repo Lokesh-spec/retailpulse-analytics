@@ -20,17 +20,18 @@ BQ_RAW_TABLE = Variable.get('bq_raw_dataset_id')
 # Logger
 logger = logging.getLogger(__name__)
 
+
 @dag(
     start_date=days_ago(1),
-    max_active_runs=2,  
+    max_active_runs=2,
     schedule=None,
     catchup=False,
     tags=['bi', 'bigquery', 'dbt'],
     description="Load products CSV from GCS to BigQuery",
     default_args={
-        'retries': 1,       
+        'retries': 1,
         'retry_delay': timedelta(minutes=1),
-        'on_failure_callback': notify_failure 
+        'on_failure_callback': notify_failure
     }
 )
 def load_products_to_bq_dbt():
@@ -52,7 +53,7 @@ def load_products_to_bq_dbt():
     load_to_bq = GCSToBigQueryOperator(
         task_id='load_gcs_to_bq',
         bucket=MY_BUCKET,
-        source_objects="{{ dag_run.conf['gcs_path'] }}",  
+        source_objects="{{ dag_run.conf['gcs_path'] }}",
         destination_project_dataset_table=BQ_RAW_TABLE,
         source_format="CSV",
         create_disposition="CREATE_IF_NEEDED",
@@ -95,9 +96,9 @@ def load_products_to_bq_dbt():
         }
     )
 
-
     # Set dependencies
     log_info >> load_to_bq >> dbt_task_group
+
 
 # Instantiate the DAG
 load_products_to_bq_dbt_dag = load_products_to_bq_dbt()

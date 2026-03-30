@@ -1,9 +1,11 @@
-import requests 
+import requests
 import logging
 
 logger = logging.getLogger(__name__)
 
-def fetch_product_data_api(url: str, headers: dict, timeout: int) -> list[dict]:
+
+def fetch_product_data_api(url: str, headers: dict,
+                           timeout: int) -> list[dict]:
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
         response.raise_for_status()
@@ -20,4 +22,4 @@ def fetch_product_data_api(url: str, headers: dict, timeout: int) -> list[dict]:
         raise
     except requests.exceptions.RequestException as e:
         logger.error(f"Request failed: {e}")
-        raise 
+        raise

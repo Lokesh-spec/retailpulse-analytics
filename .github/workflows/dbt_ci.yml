@@ -37,6 +37,15 @@ jobs:
         run: |
           echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/service_account.json
 
+      - name: dbt deps
+        working-directory: include/dbt/retailpulse_dbt
+        run: |
+          dbt deps \
+            --profiles-dir . \
+            --profile retailpulse_dbt
+        env:
+          DBT_KEYFILE_PATH: /tmp/service_account.json
+
       # dbt compile checks all SQL and YAML for syntax errors
       # It does NOT run queries — just validates the project parses correctly
       - name: dbt compile
