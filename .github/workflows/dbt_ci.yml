@@ -1,0 +1,8 @@
+# Create a test branch
+git checkout -b test/ci-setup
+
+# Add the workflow file
+git add .github/workflows/dbt_ci.yml
+git add include/dbt/retailpulse_dbt/profiles.yml
+git commit -m "Add GitHub Actions CI for dbt and python lint"
+git push origin test/ci-setup
