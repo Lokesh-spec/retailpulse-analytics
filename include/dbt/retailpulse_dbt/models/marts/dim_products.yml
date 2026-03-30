@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: "Dimension table for products, containing enriched product information for analysis and reporting."
+
+    columns:
+      - name: product_id
+        description: "Unique identifier for each product"
+        tests:
+          - not_null
+          - unique
+
+      - name: product_name
+        description: "Name of the product"
+        tests:
+          - not_null
+
+      - name: product_category
+        description: "Category to which the product belongs"
+        tests:
+          - not_null
+
+      - name: product_brand
+        description: "Brand of the product"

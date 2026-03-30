@@ -1,0 +1,15 @@
+retailpulse_dbt:
+  outputs:
+    dev:
+      dataset: retailpulse_staging
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /usr/local/airflow/include/gcp/service_account.json
+      location: US
+      method: service-account
+      priority: interactive
+      project: retailpulse-analytics
+      threads: 4
+      type: bigquery
+  target: dev
+

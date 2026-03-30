@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: "Cleaned and renamed product data from raw source"
+
+    # Model-level tests go here — NOT inside columns
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - product_id
+            - ingestion_time
+
+    columns:
+      - name: product_id
+        description: "The unique identifier for the product (from SKU)."
+        tests:
+          - not_null
+
+      - name: ingestion_time
+        description: "The timestamp when the data was ingested."
+        tests:
+          - not_null
+
+      - name: stock_quantity
+        description: "Available stock quantity for the product."
+        tests:
+          - not_null
+          - accepted_range:        # FIX: was 'accptedr_range' (typo)
+              min_value: 0
+              max_value: 1000000
+
+      - name: sale_price
+        description: "The sale price of the product."
+        tests:
+          - not_null
+
+      - name: discount
+        description: "The discount applied to the product."
+        tests:
+          - accepted_range:
+              min_value: 0
+              max_value: 100
+
+      - name: lead_time_days
+        description: "The lead time in days for the supplier."
+        tests:
+          - accepted_range:
+              min_value: 0
+              max_value: 365
+
+      - name: rating
+        description: "The rating of the product."
+        tests:
+          - not_null
+          - accepted_range:
+              min_value: 1
+              max_value: 5

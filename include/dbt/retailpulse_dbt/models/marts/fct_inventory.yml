@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: fct_inventory
+    description: "Fact table capturing product inventory snapshots with risk signals"
+
+    columns:
+
+      - name: product_id
+        description: "Product identifier"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+
+      - name: supplier_name
+        description: "Supplier identifier"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_suppliers')
+              field: supplier_name
+
+      - name: date_key
+        description: "Date key in YYYYMMDD format"
+        tests:
+          - not_null
+
+      - name: ingestion_time
+        description: "Timestamp of ingestion (defines grain)"
+        tests:
+          - not_null
+
+      - name: stock_quantity
+        description: "Available stock quantity"
+        tests:
+          - not_null
+
+      - name: normalized_stock_status
+        description: "Normalized stock status"
+        tests:
+          - not_null
+
+      - name: sale_price
+        description: "Selling price of the product"
+        tests:
+          - not_null
+
+      - name: alert_flag
+        description: "Flag indicating alert condition"
+        tests:
+          - not_null
+
+      - name: inventory_risk_flag
+        description: "Flag indicating inventory risk"
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - product_id
+            - ingestion_time

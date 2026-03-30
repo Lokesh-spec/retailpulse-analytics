@@ -1,0 +1,200 @@
+1. Business Goal
+- Enable near real-time monitoring of inventory health, pricing dynamics, and supplier efficiency to support operational decision-making in an e-commerce system.
+
+2.  Available Domains
+- Product info (name, category, brand)
+- Pricing (msrp, sale, discount)
+- Inventory (stock, warehouse, reorder point)
+- Supplier (lead time)
+- Reviews (rating, count)
+- Shipping (estimated delivery)
+
+3. Fields: 
+| FIELD                    | TYPE     | DESCRIPTION                                                         |
+| ------------------------ | -------- | ------------------------------------------------------------------- |
+| sku                      | string   | Stock Keeping Unit - unique identifier for this product             |
+| name                     | string   | Product name or title                                               |
+| description              | string   | Detailed description of the product and its features                |
+| category                 | string   | Product category classification (e.g., Electronics, Clothing)       |
+| brand                    | string   | Brand or manufacturer of the product                                |
+| condition                | string   | Physical condition of the product (New, Refurbished, Used, etc.)    |
+| price                    | object   | Pricing information for this product                                |
+| price.msrp               | float    | Manufacturer's Suggested Retail Price                               |
+| price.sale               | float    | Current sale price (may include discounts or condition adjustments) |
+| price.discount           | float    | Discount percentage applied from MSRP                               |
+| price.currency           | string   | Currency code for pricing (e.g., USD, EUR)                          |
+| stock                    | object   | Inventory and stock information                                     |
+| stock.quantity           | integer  | Current quantity available in inventory                             |
+| stock.status             | string   | Stock availability status (In Stock, Low Stock, Out of Stock, etc.) |
+| stock.warehouse          | object   | Warehouse location where this product is stored                     |
+| stock.warehouse.code     | string   | Warehouse identifier code                                           |
+| stock.warehouse.name     | string   | Human-readable warehouse name                                       |
+| stock.warehouse.region   | string   | Geographic region of the warehouse                                  |
+| stock.reorderPoint       | integer  | Minimum quantity threshold that triggers reordering                 |
+| stock.lastRestocked      | datetime | Timestamp when this product was last restocked                      |
+| supplier                 | object   | Supplier or vendor information for this product                     |
+| supplier.name            | string   | Name of the supplier or vendor                                      |
+| supplier.contact         | email    | Contact email for the supplier                                      |
+| supplier.leadTimeDays    | integer  | Expected lead time in days for restocking from this supplier        |
+| specs                    | object   | Product specifications and technical details                        |
+| reviews                  | object   | Product review information                                          |
+| reviews.createdAt        | datetime | Timestamp when review data was created                              |
+| reviews.updatedAt        | datetime | Timestamp when review data was last updated                         |
+| reviews.rating           | float    | Average product rating                                              |
+| reviews.reviewCount      | integer  | Total number of reviews                                             |
+| reviews.tags             | array    | Tags or keywords from reviews                                       |
+| shipping                 | object   | Shipping and delivery information                                   |
+| shipping.freeShipping    | boolean  | Indicates whether free shipping is available                        |
+| shipping.estimatedDays   | string   | Estimated delivery time range                                       |
+| shipping.weight          | string   | Shipping weight used for freight calculations                       |
+| ingestion_timestamp      | datetime | Shipping weight used for freight calculations                       |
+
+
+4. Questions:
+- Which products are at risk of stock-out?
+- Which suppliers have long lead times (slow restocking)?
+- Are product prices discounted effectively?
+- Which products have high rating but low stock (high demand signal)?
+- How does inventory vary across warehouses/regions?
+
+5. Final Metrics
+5.1. Inventory Metrics (CORE)
+- current_stock_level → stock.quantity
+- low_stock_flag → stock.quantity < reorderPoint
+- stock_status → In Stock / Backordered
+- days_since_last_restock
+
+5.2. Supplier Metrics
+- lead_time_days → supplier.leadTimeDays
+- supplier_risk_flag → high lead time + low stock
+
+5.3. Pricing Metrics
+- discount_percentage (already given)
+- price_gap (msrp - sale)
+- discount_effectiveness_flag
+
+5.4. Product Quality Metrics
+- average_rating
+- review_count
+- high_demand_flag → high rating + high reviews
+
+5.5. Smart Combined Metrics 
+- high_demand_low_stock_flag
+- inventory_risk_score
+- supplier_dependency_score
+
+
+6. Fact and Dimension Modeling.
+6.1. Dimension Tables
+- Product : 
+Grain : 1 row per Product
+1. product_id (sku)
+2. name
+3. category
+4. brand
+5.condition
+6. rating
+5. review_count
+
+- Supplier : 
+Grain : 1 row per Supplier
+1. supplier_id
+2. supplier_name
+3. contact
+4. lead_time_days
+
+- Date : 
+Grain : 1 row per Date
+1. date_key
+2. day
+3. week
+4. month
+5. quarter
+6. year
+
+- Fact Table — Inventory Snapshot
+Grain : 1 row per product per date
+Columns:
+1. stock_id
+2. product_id
+3. supplier_id
+4. date_key
+5. msrp
+6. sale_price
+7. discount
+8. stock_quantity
+9. stock_status
+10. warehouse_code
+11. region
+12. reorder_point
+
+
+
+🟢 Model 1 — Inventory Signals
+
+👉 Purpose:
+Detect stock risks
+
+You’ll derive:
+	•	low stock (based on reorder point)
+	•	stock status normalization (clean categories)
+	•	days since last restock
+
+⸻
+
+🔵 Model 2 — Demand Signals
+
+👉 Purpose:
+Estimate product demand (since you don’t have orders)
+
+You’ll use:
+	•	rating
+	•	review count
+
+👉 Build:
+	•	high demand indicator
+	•	demand score (optional later)
+
+⸻
+
+🟡 Model 3 — Pricing Signals
+
+👉 Purpose:
+Understand pricing behavior
+
+You’ll derive:
+	•	price gap (msrp vs sale)
+	•	discount effectiveness
+	•	potential overpriced/underpriced flags
+
+⸻
+
+🟠 Model 4 — Supplier Risk
+
+👉 Purpose:
+Identify supply chain risk
+
+You’ll combine:
+	•	lead time
+	•	stock level
+
+👉 Build:
+	•	supplier risk flag
+	•	dependency risk
+
+⸻
+
+🔴 Model 5 — Combined Intelligence (Important)
+
+👉 This is your highlight model
+
+You combine:
+	•	demand + inventory
+
+👉 Example thinking:
+
+“High demand + low stock = 🚨 critical”
+
+This is your:
+	•	high_demand_low_stock_flag
+	•	inventory risk score

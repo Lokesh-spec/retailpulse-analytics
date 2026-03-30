@@ -1,0 +1,49 @@
+# =====================
+# Node.js / Astro
+# =====================
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.env.*.local
+.vscode/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+pyproject.toml
+uv.lock
+
+__pycache__/
+*.pyc
+
+# Optional: lock files if you don't want them
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# =====================
+# dbt
+# =====================
+dbt_modules/
+target/
+logs/
+run/
+dbt_packages/
+profile.yml
+*.dbt
+
+# =====================
+# OS / IDE files
+# =====================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# Google Cloud service account credentials
+include/gcp/service_account.json

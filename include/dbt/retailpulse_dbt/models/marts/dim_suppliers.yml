@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: dim_suppliers
+    description: "Dimension table for suppliers, containing enriched supplier information for analysis and reporting."
+
+    columns:
+      - name: supplier_name
+        description: "Unique identifier for each supplier"
+        tests:
+          - not_null
+          - unique
+
+      - name: supplier_contact
+        description: "Contact information for the supplier"
+        tests:
+          - not_null
+
+      - name: supplier_lead_time
+        description: "Lead time in days for the supplier to deliver the product"

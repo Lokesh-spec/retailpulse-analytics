@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: int_inventory_signals
+    description: "Inventory signals and risk classification"
+
+    columns:
+
+      - name: product_id
+        tests:
+          - not_null
+
+      - name: ingestion_time
+        tests:
+          - not_null
+
+      - name: normalized_stock_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['IN_STOCK', 'OUT_OF_STOCK', 'LOW_STOCK', 'BACKORDER', 'DISCONTINUED']
+
+      - name: inventory_risk_flag
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH_RISK', 'MEDIUM_RISK', 'LOW_RISK']
+
+      - name: alert_flag
+        tests:
+          - not_null
+
+      - name: high_demand_flag
+        tests:
+          - not_null

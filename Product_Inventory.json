@@ -1,0 +1,64 @@
+[
+{
+    "meta": {
+        "status": "OK",
+        "code": 200,
+        "type": "ok",
+        "locale": "en_US",
+        "requestId": "738bedea-4838-44e2-8b1f-f9f7ac82205f",
+        "generatedAt": "2026-03-27T14:42:03.262Z",
+        "total": 1,
+        "seed": "KKREfQ.clhswuDwvvG-4HFx_rpPGKG0tSUORhekIr1NkZYR1LIgtVO6",
+        "isTest": true,
+        "message": "SUCCESS"
+    },
+    "data": [
+        {
+            "sku": "ORG-150570-92",
+            "name": "Organic Food & Beverage Product",
+            "description": "High-quality organic food & beverage item",
+            "category": "Organic Food & Beverage",
+            "brand": "TastyCraft Artisan",
+            "condition": "Refurbished",
+            "price": {
+                "msrp": 48.08,
+                "sale": 34.59,
+                "discount": 28.1,
+                "currency": "USD"
+            },
+            "stock": {
+                "quantity": 0,
+                "status": "Backordered",
+                "warehouse": {
+                    "code": "WH-EU-WEST",
+                    "name": "London Distribution Center - UK Fulfillment",
+                    "region": "EU-West"
+                },
+                "reorderPoint": 15,
+                "lastRestocked": "2025-07-10T14:42:03.260Z"
+            },
+            "supplier": {
+                "name": "TopTier Suppliers - Quality Sourcing",
+                "contact": "orders@toptiersuppliersqualitysourcing.com",
+                "leadTimeDays": 10
+            },
+            "specs": {},
+            "reviews": {
+                "createdAt": "2024-07-01T14:42:03.260Z",
+                "updatedAt": "2024-07-26T14:42:03.260Z",
+                "rating": 4.3,
+                "reviewCount": 2422,
+                "tags": [
+                    "staff-pick",
+                    "limited-edition"
+                ]
+            },
+            "shipping": {
+                "freeShipping": true,
+                "estimatedDays": "6-9 business days",
+                "weight": "500g"
+            }
+        }
+    ]
+}
+]

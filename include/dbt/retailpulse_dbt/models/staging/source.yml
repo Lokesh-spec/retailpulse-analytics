@@ -1,0 +1,83 @@
+version: 2
+
+sources:
+  - name: retailpulse_raw
+    database: retailpulse-analytics
+    schema: retailpulse_raw
+    tables:
+      - name: products
+        description: "Raw product data ingested from the API, stored in BigQuery."
+        columns:
+          - name: sku
+            description: "Stock Keeping Unit, unique identifier for each product."
+            tests:
+              - not_null
+          - name: name
+            description: "Name of the product."
+          - name: description
+            description: "Detailed description of the product."
+          - name: category
+            description: "Category to which the product belongs."
+          - name: brand
+            description: "Brand of the product."
+          - name: condition
+            description: "Condition of the product (e.g., new, used)."
+          - name: msrp
+            description: "Manufacturer's Suggested Retail Price."
+          - name: sale
+            description: "Current sale price of the product."
+            tests:
+              - not_null
+          - name: discount
+            description: "Discount percentage for the product."
+          - name: currency
+            description: "Currency code for the price fields (e.g., USD)."
+          - name: stock_quantity
+            description: "Available stock quantity for the product."
+            tests:
+              - not_null
+          - name: stock_status
+            description: "Stock status (e.g., stock_status, Backordered, Out of Stock, Discontinued, Low Stock, and In Stock)."
+          - name: stock_code
+            description: "Stock code indicating the stock status"
+          - name: stock_name
+            description: "Stock name indicating the stock status"
+          - name: stock_region
+            description: "Region where the stock is located"
+          - name: stock_reorder_point
+            description: "Reorder point for the stock"
+          - name: stock_last_restocked
+            description: "Timestamp of the last restock for the product"
+          - name: supplier_name
+            description: "Name of the supplier providing the product"
+          - name: supplier_contact
+            description: "Contact information for the supplier"
+          - name: supplier_lead_time
+            description: "Lead time in days for the supplier to deliver the product"
+          - name: reviews_created_at
+            description: "Timestamp when the review was created"
+          - name: reviews_updated_at
+            description: "Timestamp when the review was last updated"
+          - name: reviews_rating
+            description: "Rating given by the customer in the review"
+            tests:
+              - not_null
+          - name: reviews_review_count
+            description: "Total number of reviews for the product"
+          - name: reviews_tags
+            description: "Tags associated with the reviews for the product"
+          - name: shipping_free_shipping
+            description: "Indicates if the product has free shipping (true/false)"
+          - name: shipping_estimated_days
+            description: "Estimated number of days for shipping the product"
+          - name: shipping_weight
+            description: "Weight of the product for shipping purposes"
+          - name: ingestion_time
+            description: "Timestamp when the product data was ingested into BigQuery."
+            tests:
+              - not_null
+          - name: stock_status
+            tests:
+              - accepted_values:
+                  values: ['In Stock', 'Out of Stock', 'Low Stock', 'Backordered', 'Discontinued']
+          
