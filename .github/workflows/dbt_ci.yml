@@ -1,8 +1,89 @@
-# Create a test branch
-git checkout -b test/ci-setup
+name: dbt CI
 
-# Add the workflow file
-git add .github/workflows/dbt_ci.yml
-git add include/dbt/retailpulse_dbt/profiles.yml
-git commit -m "Add GitHub Actions CI for dbt and python lint"
-git push origin test/ci-setup
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      # Only trigger when dbt or plugin files change
+      - 'include/dbt/**'
+      - 'dags/**'
+      - 'plugins/**'
+
+jobs:
+
+  dbt-ci:
+    name: dbt Compile & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            dbt-bigquery==1.7.9 \
+            dbt-utils \
+            astronomer-cosmos==1.6.0
+
+      # Write the GCP service account key to a file
+      # CI uses the same key your Airflow environment uses
+      - name: Authenticate with GCP
+        run: |
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/service_account.json
+
+      # dbt compile checks all SQL and YAML for syntax errors
+      # It does NOT run queries — just validates the project parses correctly
+      - name: dbt compile
+        working-directory: include/dbt/retailpulse_dbt
+        run: |
+          dbt compile \
+            --profiles-dir . \
+            --profile retailpulse_dbt \
+            --target dev
+        env:
+          DBT_KEYFILE_PATH: /tmp/service_account.json
+
+      # dbt test runs your actual tests against BigQuery
+      # Uses your existing dev dataset — no separate dataset needed
+      - name: dbt test
+        working-directory: include/dbt/retailpulse_dbt
+        run: |
+          dbt test \
+            --profiles-dir . \
+            --profile retailpulse_dbt \
+            --target dev \
+            --select tag:products tag:inventory tag:dimension tag:fact
+        env:
+          DBT_KEYFILE_PATH: /tmp/service_account.json
+
+  python-lint:
+    name: Python Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      # Catches syntax errors and bad imports in DAGs and plugins
+      # E501 ignored — line length is a style choice, not a bug
+      - name: Lint DAGs and plugins
+        run: |
+          flake8 dags/ plugins/ \
+            --max-line-length=120 \
+            --ignore=E501,W503 \
+            --count
