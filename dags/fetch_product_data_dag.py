@@ -26,15 +26,15 @@ API_TIMEOUT = int(Variable.get("API_TIMEOUT", default_var=10))
 
 @dag(
     start_date=days_ago(1),
-    schedule='*/10 * * * *',  
+    schedule='*/10 * * * *',
     description="DAG to fetch product data from API, transform, and upload to GCS",
     catchup=False,
-    max_active_runs=2,       
+    max_active_runs=2,
     tags=['api', 'product', 'extract'],
     default_args={
-        'retries': 1,       
+        'retries': 1,
         'retry_delay': timedelta(minutes=1),
-        'on_failure_callback': notify_failure 
+        'on_failure_callback': notify_failure
     }
 )
 def product_data_dag():
@@ -61,7 +61,7 @@ def product_data_dag():
                     logger.info(f"First SKU: {products[0].get('sku')}")
             else:
                 logger.warning("No data fetched")
-            
+
             if data:
                 all_products.append(data)
 
@@ -72,7 +72,6 @@ def product_data_dag():
             json.dump(all_products, f)
 
         return file_path
-
 
     @task()
     def _transform(file_path: str) -> str:
@@ -86,7 +85,7 @@ def product_data_dag():
         logger.info(f"Saved transformed data to {output_path}")
 
         return output_path
-    
+
     @task()
     def _upload_to_gcs(local_path: str) -> dict:
         context = get_current_context()
@@ -94,7 +93,7 @@ def product_data_dag():
         # Sanitize run_id: only allow alphanumeric, dash, dot, underscore
         sanitized_run_id = re.sub(r"[^a-zA-Z0-9._-]", "_", run_id)
         gcs_path = f"products/{sanitized_run_id}/Product.csv"
-        
+
         hook = GCSHook(gcp_conn_id="google_cloud_default")
         hook.upload(
             bucket_name=BUCKET_NAME,
