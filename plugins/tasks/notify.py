@@ -6,13 +6,12 @@ logger = logging.getLogger(__name__)
 
 ALERT_EMAIL = Variable.get('ALERT_EMAIL', default_var='lokeshkv18@gmail.com')
 
-
 def notify_failure(context: dict) -> None:
     """Send email alert on task failure."""
 
-    dag_run        = context.get('dag_run')
-    task_instance  = context.get('task_instance')
-    exception      = context.get('exception')       
+    dag_run = context.get('dag_run')
+    task_instance = context.get('task_instance')
+    exception = context.get('exception')       
 
     subject = f"Airflow Alert: Task {task_instance.task_id} Failed in DAG {dag_run.dag_id}"
 

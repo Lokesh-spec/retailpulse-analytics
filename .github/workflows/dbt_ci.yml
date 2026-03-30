@@ -29,7 +29,6 @@ jobs:
         run: |
           pip install \
             dbt-bigquery==1.7.9 \
-            dbt-utils \
             astronomer-cosmos==1.6.0
 
       # Write the GCP service account key to a file
