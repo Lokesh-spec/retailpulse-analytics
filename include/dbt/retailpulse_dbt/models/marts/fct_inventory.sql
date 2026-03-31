@@ -1,13 +1,13 @@
-{{
+{{ 
     config(
         materialized='incremental',
         unique_key=['product_id', 'ingestion_time'],
         alias='fct_inventory',
         tags=['fact', 'inventory']
-    )
+    ) 
 }}
 
-WITH filtered_data AS (
+WITH base AS (
 
     SELECT
         product_id,
@@ -30,7 +30,7 @@ WITH filtered_data AS (
     FROM {{ ref('int_inventory_signals') }}
 
     {% if is_incremental() %}
-    WHERE ingestion_time >= (
+    WHERE ingestion_time > (
         SELECT COALESCE(
             MAX(t.ingestion_time),
             TIMESTAMP('2020-01-01 00:00:00')
@@ -38,6 +38,18 @@ WITH filtered_data AS (
         FROM {{ this }} AS t
     )
     {% endif %}
+
+),
+
+deduped AS (
+
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY product_id, ingestion_time
+            ORDER BY ingestion_time DESC
+        ) AS rn
+    FROM base
 
 )
 
@@ -64,8 +76,8 @@ SELECT
     ingestion_time,
     days_since_last_restock,
 
-    -- optional but useful
     lead_time_days,
     warehouse_region
 
-FROM filtered_data
+FROM deduped
+WHERE rn = 1

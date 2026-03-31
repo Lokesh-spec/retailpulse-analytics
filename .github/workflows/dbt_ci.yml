@@ -58,6 +58,19 @@ jobs:
         env:
           DBT_KEYFILE_PATH: /tmp/service_account.json
 
+      # dbt run actually executes models in BigQuery
+      # This is where incremental + MERGE issues surface
+      - name: dbt run
+        working-directory: include/dbt/retailpulse_dbt
+        run: |
+          dbt run \
+            --profiles-dir . \
+            --profile retailpulse_dbt \
+            --target dev \
+            --select tag:products tag:inventory tag:dimension tag:fact
+        env:
+          DBT_KEYFILE_PATH: /tmp/service_account.json
+
       # dbt test runs your actual tests against BigQuery
       # Uses your existing dev dataset — no separate dataset needed
       - name: dbt test

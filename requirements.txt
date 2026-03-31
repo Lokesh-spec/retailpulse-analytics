@@ -2,3 +2,5 @@
 apache-airflow-providers-google==10.19.0
 astronomer-cosmos==1.6.0
 dbt-bigquery==1.7.9
+
+apache-airflow-providers-google==20.0.0
