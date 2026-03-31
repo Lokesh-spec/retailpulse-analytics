@@ -1,10 +1,10 @@
-{{
+{{ 
     config(
         materialized='incremental',
-        unique_key=['product_id', 'ingestion_time'],
+        unique_key=['product_id', 'warehouse_region', 'ingestion_time'],
         alias='int_inventory_signals',
         tags=['inventory', 'signals']
-    )
+    ) 
 }}
 
 WITH source_products AS (
@@ -62,7 +62,6 @@ inventory_signals AS (
     SELECT
         *,
 
-        -- normalized status
         CASE
             WHEN stock_status = 'Out of Stock' THEN 'OUT_OF_STOCK'
             WHEN stock_status = 'Low Stock' THEN 'LOW_STOCK'
@@ -71,13 +70,11 @@ inventory_signals AS (
             ELSE 'DISCONTINUED'
         END AS normalized_stock_status,
 
-        -- alert flag
         CASE
             WHEN stock_status IN ('Low Stock', 'Out of Stock') THEN TRUE
             ELSE FALSE
         END AS alert_flag,
 
-        -- in-stock risk
         CASE
             WHEN stock_status = 'In Stock' 
                  AND stock_quantity < 100 
@@ -86,13 +83,11 @@ inventory_signals AS (
             ELSE FALSE
         END AS in_stock_risk_flag,
 
-        -- backorder delay
         CASE
             WHEN stock_status = 'Backordered' AND lead_time_days > 10 THEN TRUE
             ELSE FALSE
         END AS backorder_delay_flag,
 
-        -- restock freshness
         CASE 
             WHEN days_since_last_restock < 7 THEN 'FRESH'
             WHEN days_since_last_restock BETWEEN 7 AND 30 THEN 'NORMAL'
@@ -100,7 +95,6 @@ inventory_signals AS (
             ELSE 'STALE'
         END AS restock_staleness_flag,
 
-        -- demand signal
         CASE 
             WHEN rating >= 4 AND review_count >= 500 THEN TRUE
             ELSE FALSE
@@ -115,7 +109,6 @@ final_inventory_signals AS (
     SELECT
         *,
 
-        -- final risk classification
         CASE 
             WHEN normalized_stock_status = 'OUT_OF_STOCK' THEN 'HIGH_RISK'
             WHEN normalized_stock_status = 'LOW_STOCK' 
@@ -128,7 +121,20 @@ final_inventory_signals AS (
 
     FROM inventory_signals
 
+),
+
+
+deduped AS (
+
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY product_id, warehouse_region, ingestion_time
+            ORDER BY ingestion_time DESC
+        ) AS rn
+    FROM final_inventory_signals
+
 )
 
-SELECT * 
-FROM final_inventory_signals
+SELECT *
+FROM deduped
+WHERE rn = 1

@@ -2,3 +2,6 @@
 target/
 dbt_packages/
 logs/
+
+
+dags/fec_candidate_ingestion_dag.py
